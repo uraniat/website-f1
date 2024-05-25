@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Pet</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="./favicon.png" rel="shortcut icon">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="header">
+       <div class="container">
+        <nav>
+            <img src="Animal_Kingdom_logo.png" class="logo">
+            <ul id="sidemenu">
+                <li><a href="#home" onclick="loadAnimals('dogs')">Dogs</a></li>
+                <li><a href="#home" onclick="loadAnimals('cats')">Cats</a></li>
+                <li><a href="#home" onclick="loadAnimals('birds')">Birds</a></li>
+                <li><a href="#about-us">About Us</a></li>
+                <li><a href="#gallery">Gallery</a></li>
+                <li><a href="#contact-us">Contact Us</a></li>
+                <i class="fas fa-times" onclick="closemenu()"></i>
+            </ul>
+            <i class="fas fa-bars" onclick="openmenu()"></i>
+        </nav>
+        <div class="header-text">
+            <p><span>Furry Friends, Forever!</span></p>
+            <h1>Hello! Welcome to our <span>animal kingdom</span>, where you can explore <br>a wide variety of different <span>animals</span>.</h1>
+        </div>
+       </div>
+    </div>
+
+    <section id="about-us">
+        <h2>About Us</h2>
+        <p>Welcome to our animal catalog, a place where we celebrate the beauty and diversity of the animal kingdom. Our passion for animals drives us to create a platform where you can explore and learn about various species from around the world. Whether you're a seasoned animal enthusiast or just starting to discover the wonders of nature, our catalog offers a glimpse into the fascinating lives of cats, dogs, birds, and more. Join us on this exciting journey as we uncover the stories behind each creature, sharing their unique traits, origins, and the incredible bond they share with humans. Together, let's embark on an adventure of discovery and appreciation for the incredible creatures that share our planet.</p>
+    </section>
+
+    <section id="gallery">
+        <h2>Animal Gallery</h2>
+        <div class="search-bar">
+            <input type="text" id="search-input" placeholder="Search for animals...">
+            <button type="button" onclick="searchAnimals()"><i class="fas fa-search"></i></button>
+        </div>
+        <div id="animal-cards" class="animal-cards">
+            <!-- Animal cards will be dynamically inserted here -->
+        </div>
+    </section>
+
+    <div id="contact-us">
+        <div class="container">
+            <div class="row">
+                <div class="contact-left">
+                    <h1  class="sub-title">Contact Us</h1>
+                    <p><i class="fas fa-paper-plane"></i>tumaniurania@gmail.com</p>
+                    <p><i class="fas fa-phone-square-alt"></i>+355 684055358</p>
+                    <div class="social-icons">
+                        <a href="https://www.facebook.com/yourpage"><i class="fab fa-facebook-square"></i></a>
+        <a href="https://www.twitter.com/yourprofile"><i class="fab fa-twitter-square"></i></a>
+        <a href="https://www.instagram.com/yourprofile"><i class="fab fa-instagram-square"></i></a>
+        
+    </div>
+                    </div>
+                </div>
+                <div class="contact-right">
+                    <form >
+                       <input type="text"   name="Name"  placeholder="Your Name"  required>
+                       <input type="email" name="email" placeholder="Your email"   required>
+                       <textarea name="Message" rows="6"  placeholder="Your Message"  ></textarea>
+                       <button type="submit"  download class="btn btn2">Submit</button>
+                    </form>
+                </div>
+    
+            </div>
+            <div class="copyright">
+                <p> <i>Copyright  2024</i></p>
+            </div>
+        </div>
+
+    <div id="popup" class="popup">
+        <div class="popup-content">
+            <span class="close" onclick="closePopup()">&times;</span>
+            <h2 id="popup-name">Animal Name</h2>
+            <img id="popup-image" src="" alt="Animal">
+            <p id="popup-origin">Origin</p>
+            <p id="popup-description">Additional information about the animal.</p>
+        </div>
+    </div>
+
+    <script>
+         const apiUrls = {
+        dogs: "https://freetestapi.com/api/v1/dogs",
+        cats: "https://freetestapi.com/api/v1/cats",
+        birds: "https://freetestapi.com/api/v1/birds"
+    };
+
+    
+    function openmenu() {
+        document.getElementById("sidemenu").style.right = "0";
+    }
+
+    function closemenu() {
+        document.getElementById("sidemenu").style.right = "-200px";
+    }
+
+    function loadAnimals(type) {
+        fetch(apiUrls[type])
+            .then(response => response.json())
+            .then(data => {
+                currentAnimals = data;
+                displayAnimals(data);
+            })
+            .catch(error => console.error("Error fetching animals:", error));
+    }
+
+    function loadAllAnimals() {
+                Promise.all([fetch(apiUrls.dogs), fetch(apiUrls.cats), fetch(apiUrls.birds)])
+                    .then(responses => Promise.all(responses.map(response => response.json())))
+                    .then(data => {
+                        currentAnimals = [...data[0], ...data[1], ...data[2]];
+                        displayAnimals(currentAnimals);
+                    })
+                    .catch(error => console.error("Error fetching all animals:", error));
+            }
+
+    function displayAnimals(animals) {
+        const animalCardsContainer = document.getElementById("animal-cards");
+        animalCardsContainer.innerHTML = "";
+        animals.forEach(animal => {
+            const animalCard = document.createElement("div");
+            animalCard.className = "animal-card";
+            animalCard.onclick = () => showPopup(animal);
+            animalCard.innerHTML = `
+                <img src="${animal.photo}" alt="${animal.name}">
+                <h3>${animal.name}</h3>
+                <p>${animal.origin}</p>
+            `;
+            animalCardsContainer.appendChild(animalCard);
+        });
+    }
+
+    function showPopup(animal) {
+        document.getElementById("popup-name").innerText = animal.name;
+        document.getElementById("popup-image").src = animal.photo;
+        document.getElementById("popup-origin").innerText = animal.origin;
+        document.getElementById("popup-description").innerText = animal.description;
+        document.getElementById("popup").style.display = "flex";
+    }
+
+    function closePopup() {
+        document.getElementById("popup").style.display = "none";
+    }
+
+    function searchAnimals() {
+        const searchTerm = document.getElementById("search-input").value.toLowerCase();
+        const filteredAnimals = currentAnimals.filter(animal =>
+            animal.name.toLowerCase().includes(searchTerm)
+        );
+        displayAnimals(filteredAnimals);
+    }
+
+    // Load default animal type (e.g., dogs) on page load
+   // window.onload = () => loadAnimals('dogs');
+    //window.onload = () => loadAnimals('cats', 'dogs');
+ //   window.onload = () => loadAnimals('birds');
+ //window.onload = () => loadAnimals('cats', 'dogs');
+ window.onload = () => loadAllAnimals();
+
+    </script>
+</body>
+</html>
